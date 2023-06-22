@@ -9,11 +9,6 @@
 #include "Graphics.cpp"
 #include "Math.h"
 
-//------------------------------------------------------------------------------
-//  triangle-sapp.c
-//  Simple 2D rendering from vertex buffer.
-//------------------------------------------------------------------------------
-
 // application state
 static struct 
 {
@@ -65,6 +60,12 @@ void DrawRect(float x, float y, float width, float height, Color color)
     indexBuffer[indexBufferUsed++] = startIndex + 3;
 }
 
+void DrawLine(Vector2F startPos, Vector2F endPos, Color color)
+{
+    Vector2F direction = endPos - startPos;
+    printf("%f %f\n", direction.x, direction.y);
+}
+
 void DrawCircle(Vector2F center, float radius, int numSegments, Color color)
 {
     int startIndex = vertexBufferUsed / 7; // 7 = 3 (position) + 4 (color) attributes per vertex
@@ -103,6 +104,8 @@ static void init(void)
     DrawRect( 0.25f,  0.25f, 0.5f, 0.5f, Color::cyan);
 
     DrawCircle(Vector2F::zero, 0.5f, 5, Color::red);
+
+    DrawLine(Vector2F::zero, Vector2F::one, Color::blue);
 
     state.bind.vertex_buffers[0] = sg_make_buffer((sg_buffer_desc)
     {
@@ -161,6 +164,7 @@ sapp_desc sokol_main(int argc, char* argv[])
     (void)argc; (void)argv;
     return (sapp_desc)
     {
+        .win32_console_create = true,
         .init_cb = init,
         .frame_cb = frame,
         .cleanup_cb = cleanup,

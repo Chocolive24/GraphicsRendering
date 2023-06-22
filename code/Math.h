@@ -28,12 +28,12 @@ struct Vector2
     static const Vector2 left;
     static const Vector2 down;
 
-    Vector2<T> operator+(Vector2<T>& v) const
+    constexpr Vector2<T> operator+(const Vector2<T>& v) const
     {
         return Vector2<T>(this->x + v.x, this->y + v.y);
     }
 
-    Vector2<T> operator-(Vector2<T>& v) const
+    constexpr Vector2<T> operator-(const Vector2<T>& v) const
     {
         return Vector2<T>(this->x - v.x, this->y - v.y);
     }
