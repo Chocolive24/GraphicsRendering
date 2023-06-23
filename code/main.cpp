@@ -42,24 +42,6 @@ void AppendVertex(float x, float y, Color color)
     vertexBuffer[vertexBufferUsed++] = color.a;
 }
 
-void DrawRect(float x, float y, float width, float height, Color color)
-{
-    int startIndex = vertexBufferUsed / (3 + 4); // /7 = 1 vertex.
-
-    AppendVertex(x, y, color);
-    AppendVertex(x + width, y, color);
-    AppendVertex(x + width, y + height, color);
-    AppendVertex(x, y + height, color);
-
-    indexBuffer[indexBufferUsed++] = startIndex + 0;
-    indexBuffer[indexBufferUsed++] = startIndex + 1;
-    indexBuffer[indexBufferUsed++] = startIndex + 2;
-
-    indexBuffer[indexBufferUsed++] = startIndex + 0;
-    indexBuffer[indexBufferUsed++] = startIndex + 2;
-    indexBuffer[indexBufferUsed++] = startIndex + 3;
-}
-
 void DrawQuad(Vector2F pos0, Vector2F pos1, Vector2F pos2, Vector2F pos3, Color color)
 {
     int startIndex = vertexBufferUsed / (3 + 4); // /7 = 1 vertex.
@@ -78,26 +60,41 @@ void DrawQuad(Vector2F pos0, Vector2F pos1, Vector2F pos2, Vector2F pos3, Color 
     indexBuffer[indexBufferUsed++] = startIndex + 3;
 }
 
+void DrawRect(float x, float y, float width, float height, Color color)
+{
+    //int startIndex = vertexBufferUsed / (3 + 4); // /7 = 1 vertex.
+
+    DrawQuad(Vector2F(x, y), Vector2F(x + width, y), Vector2F(x + width, y + height), Vector2F(x, y + height), color);
+
+    // AppendVertex(x, y, color);
+    // AppendVertex(x + width, y, color);
+    // AppendVertex(x + width, y + height, color);
+    // AppendVertex(x, y + height, color);
+
+    // indexBuffer[indexBufferUsed++] = startIndex + 0;
+    // indexBuffer[indexBufferUsed++] = startIndex + 1;
+    // indexBuffer[indexBufferUsed++] = startIndex + 2;
+
+    // indexBuffer[indexBufferUsed++] = startIndex + 0;
+    // indexBuffer[indexBufferUsed++] = startIndex + 2;
+    // indexBuffer[indexBufferUsed++] = startIndex + 3;
+}
+
 void DrawLine(Vector2F startPos, Vector2F endPos, float thickness, Color color)
 {
+    if (startPos == endPos) return;
+
     Vector2F vSE = endPos   - startPos;
 
     Vector2F normalized = vSE.Normalized();
     Vector2F perp(normalized.y, -normalized.x);
 
-    Vector2F pos0 = startPos + perp * 0.5f * thickness;
-	Vector2F pos1 = endPos   + perp * 0.5f * thickness;
-	Vector2F pos2 = endPos - perp * 0.5f * thickness;
-	Vector2F pos3 = startPos   - perp * 0.5f * thickness;
-
-    printf("%f %f \n", pos0.x, pos0.y);
-    printf("%f %f \n", pos1.x, pos1.y);
-    printf("%f %f \n", pos2.x, pos2.y);
-    printf("%f %f \n", pos3.x, pos3.y);
+    Vector2F pos0 = startPos + perp * (thickness / 2.f);
+	Vector2F pos1 = endPos   + perp * (thickness / 2.f);
+	Vector2F pos2 = endPos   - perp * (thickness / 2.f);
+	Vector2F pos3 = startPos - perp * (thickness / 2.f);
 
     DrawQuad(pos0, pos1, pos2, pos3, color);
-
-    //printf("%f %f %f %f\n", vSE.x, vSE.y, nY.x, nY.y);
 }
 
 
@@ -135,15 +132,15 @@ static void init(void)
         .logger.func = slog_func,
     });
 
-    // DrawRect(-0.25f, -0.25f, 0.5f, 0.5f, Color::yellow);
-    // DrawRect(-0.75f, -0.75f, 0.5f, 0.5f, Color::purple);
-    // DrawRect( 0.25f,  0.25f, 0.5f, 0.5f, Color::cyan);
+    DrawRect(-0.25f, -0.25f, 0.5f, 0.5f, Color::yellow);
+    DrawRect(-0.75f, -0.75f, 0.5f, 0.5f, Color::purple);
+    DrawRect( 0.25f,  0.25f, 0.5f, 0.5f, Color::cyan);
 
-    //DrawCircle(Vector2F::zero, 0.5f, 5, Color::red);
+    DrawCircle(Vector2F::zero, 0.5f, 5, Color::red);
 
-    //DrawQuad(Vector2F::zero, Vector2F(0.34f, -0.5f), Vector2F(0.5f, -0.5f), Vector2F(0.23f, 0.9f), Color::red);
+    DrawQuad(Vector2F::zero, Vector2F(0.34f, -0.5f), Vector2F(0.5f, -0.5f), Vector2F(0.23f, 0.9f), Color::red);
 
-    DrawLine(Vector2F::zero, Vector2F(0.5f,0.5f), 0.009f, Color::blue);
+    DrawLine(Vector2F::one, Vector2F::one, 0.009f, Color::blue);
 
     state.bind.vertex_buffers[0] = sg_make_buffer((sg_buffer_desc)
     {

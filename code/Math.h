@@ -6,6 +6,8 @@
 
 namespace Calcul
 {
+    constexpr double epsilon = 0.000001;
+
     // the ratio of the circumference to the radius of a circle, which is equal to 2π
     constexpr float TAU = 2.0f * M_PI;
 };
@@ -20,7 +22,7 @@ struct Vector2
     {
         this->x = x;
         this->y = y;
-    }
+    };
 
     static const Vector2 zero;
     static const Vector2 one;
@@ -43,10 +45,7 @@ struct Vector2
         return normalized;
     }
 
-    Vector2<T> NormalVector() const 
-    {
-        return Vector2<T>(-(this->y), this->x);
-    }
+    #pragma region Operator Overloads 
 
     constexpr Vector2<T> operator+(const Vector2<T>& v) const
     {
@@ -67,6 +66,32 @@ struct Vector2
     {
         return Vector2<T>(this->x / scale, this->y / scale);
     }
+
+    constexpr Vector2<T>& operator+=(const Vector2<T>& v)
+    {
+        this->x += v.x;
+        this->y += v.y;
+        return *this;
+    }
+
+    constexpr Vector2<T>& operator-=(const Vector2<T>& v)
+    {
+        this->x -= v.x;
+        this->y -= v.y;
+        return *this;
+    }
+
+    constexpr bool operator==(const Vector2<T>& v) const
+    {
+        return abs(x - v.x) < Calcul::epsilon && abs(y - v.y) < Calcul::epsilon;
+    }
+
+    constexpr bool operator!=(const Vector2<T>& v) const
+    {
+        return !(*this == v);
+    }
+
+    #pragma endregion Operator Overloads 
 };
 
 template<class T> const Vector2<T> Vector2<T>::zero  = Vector2<T>(0, 0);
@@ -78,8 +103,3 @@ template<class T> const Vector2<T> Vector2<T>::down  = Vector2<T>(0, -1);
 
 using Vector2F   = Vector2<float>;
 using Vector2Int = Vector2<int>;
-
-// Vector2F operator*(Vector2F v, float scale)
-// {
-//     return Vector2F { v.x * scale, v.y * scale };
-// }
