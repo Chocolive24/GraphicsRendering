@@ -15,6 +15,7 @@ struct Vector2
 {
     T x, y;
 
+    Vector2(){};
     Vector2(T x, T y)
     {
         this->x = x;
@@ -28,6 +29,25 @@ struct Vector2
     static const Vector2 left;
     static const Vector2 down;
 
+    float Length() const
+    {
+        return sqrt(x * x + y * y);
+    }
+
+    Vector2<T> Normalized() const
+    {
+        Vector2<T> normalized;
+
+        normalized = (*this) / this->Length();
+
+        return normalized;
+    }
+
+    Vector2<T> NormalVector() const 
+    {
+        return Vector2<T>(-(this->y), this->x);
+    }
+
     constexpr Vector2<T> operator+(const Vector2<T>& v) const
     {
         return Vector2<T>(this->x + v.x, this->y + v.y);
@@ -36,6 +56,16 @@ struct Vector2
     constexpr Vector2<T> operator-(const Vector2<T>& v) const
     {
         return Vector2<T>(this->x - v.x, this->y - v.y);
+    }
+
+    constexpr Vector2<T> operator*(float scale) const
+    {
+        return Vector2<T>(this->x * scale, this->y * scale);
+    }
+
+    constexpr Vector2<T> operator/(float scale) const
+    {
+        return Vector2<T>(this->x / scale, this->y / scale);
     }
 };
 

@@ -60,11 +60,47 @@ void DrawRect(float x, float y, float width, float height, Color color)
     indexBuffer[indexBufferUsed++] = startIndex + 3;
 }
 
-void DrawLine(Vector2F startPos, Vector2F endPos, Color color)
+void DrawQuad(Vector2F pos0, Vector2F pos1, Vector2F pos2, Vector2F pos3, Color color)
 {
-    Vector2F direction = endPos - startPos;
-    printf("%f %f\n", direction.x, direction.y);
+    int startIndex = vertexBufferUsed / (3 + 4); // /7 = 1 vertex.
+
+    AppendVertex(pos0.x, pos0.y, color);
+    AppendVertex(pos1.x, pos1.y, color);
+    AppendVertex(pos2.x, pos2.y, color);
+    AppendVertex(pos3.x, pos3.y, color);
+
+    indexBuffer[indexBufferUsed++] = startIndex + 0;
+    indexBuffer[indexBufferUsed++] = startIndex + 1;
+    indexBuffer[indexBufferUsed++] = startIndex + 2;
+
+    indexBuffer[indexBufferUsed++] = startIndex + 0;
+    indexBuffer[indexBufferUsed++] = startIndex + 2;
+    indexBuffer[indexBufferUsed++] = startIndex + 3;
 }
+
+void DrawLine(Vector2F startPos, Vector2F endPos, float thickness, Color color)
+{
+    Vector2F vSE = endPos   - startPos;
+
+    Vector2F normalized = vSE.Normalized();
+    Vector2F perp(normalized.y, -normalized.x);
+
+    Vector2F pos0 = startPos + perp * 0.5f * thickness;
+	Vector2F pos1 = endPos   + perp * 0.5f * thickness;
+	Vector2F pos2 = endPos - perp * 0.5f * thickness;
+	Vector2F pos3 = startPos   - perp * 0.5f * thickness;
+
+    printf("%f %f \n", pos0.x, pos0.y);
+    printf("%f %f \n", pos1.x, pos1.y);
+    printf("%f %f \n", pos2.x, pos2.y);
+    printf("%f %f \n", pos3.x, pos3.y);
+
+    DrawQuad(pos0, pos1, pos2, pos3, color);
+
+    //printf("%f %f %f %f\n", vSE.x, vSE.y, nY.x, nY.y);
+}
+
+
 
 void DrawCircle(Vector2F center, float radius, int numSegments, Color color)
 {
@@ -99,13 +135,15 @@ static void init(void)
         .logger.func = slog_func,
     });
 
-    DrawRect(-0.25f, -0.25f, 0.5f, 0.5f, Color::yellow);
-    DrawRect(-0.75f, -0.75f, 0.5f, 0.5f, Color::purple);
-    DrawRect( 0.25f,  0.25f, 0.5f, 0.5f, Color::cyan);
+    // DrawRect(-0.25f, -0.25f, 0.5f, 0.5f, Color::yellow);
+    // DrawRect(-0.75f, -0.75f, 0.5f, 0.5f, Color::purple);
+    // DrawRect( 0.25f,  0.25f, 0.5f, 0.5f, Color::cyan);
 
-    DrawCircle(Vector2F::zero, 0.5f, 5, Color::red);
+    //DrawCircle(Vector2F::zero, 0.5f, 5, Color::red);
 
-    DrawLine(Vector2F::zero, Vector2F::one, Color::blue);
+    //DrawQuad(Vector2F::zero, Vector2F(0.34f, -0.5f), Vector2F(0.5f, -0.5f), Vector2F(0.23f, 0.9f), Color::red);
+
+    DrawLine(Vector2F::zero, Vector2F(0.5f,0.5f), 0.009f, Color::blue);
 
     state.bind.vertex_buffers[0] = sg_make_buffer((sg_buffer_desc)
     {
