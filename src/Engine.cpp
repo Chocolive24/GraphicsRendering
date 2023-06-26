@@ -148,7 +148,7 @@ sapp_desc sokol_main(int argc, char* argv[])
         },
         .width = 640,
         .height = 480,
-        .window_title = "Triangle (sokol-app)",
+        .window_title = "Game",
         .icon.sokol_default = true,
         .logger.func = slog_func,
     };

@@ -11,7 +11,7 @@ namespace Input
     extern Vector2F mousePos;
 
     void KeyDownCallback(const sapp_event* event);
-    void KeyUpCallback(const sapp_event* event);
+    void KeyUpCallback  (const sapp_event* event);
 
     void MousePositionCallback(const sapp_event* event);
 };
