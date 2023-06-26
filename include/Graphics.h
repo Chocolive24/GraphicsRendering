@@ -34,6 +34,8 @@ namespace Graphics
 {
     void ClearDrawBuffer();
 
+    Vector2F PosToVertex(Vector2F pos);
+
     void DrawTriangle(Vector2F pos0, Vector2F pos1, Vector2F pos2, Color color);
     void DrawQuad(Vector2F pos0, Vector2F pos1, Vector2F pos2, Vector2F pos3, Color color);
     void DrawRect(Vector2F pos, float width, float height, Color color);

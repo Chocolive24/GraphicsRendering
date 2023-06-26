@@ -29,10 +29,22 @@ namespace Graphics
         indexBufferUsed = 0;
     }
 
-    void AppendVertex(float x, float y, Color color)
+    Vector2F PosToVertex(Vector2F pos)
     {
-        vertexBuffer[vertexBufferUsed++] = x;
-        vertexBuffer[vertexBufferUsed++] = y;
+        Vector2F vertexPos;
+
+        vertexPos.x =   pos.x * 2 / sapp_width()  - 1;
+        vertexPos.y = -(pos.y * 2 / sapp_height() - 1);
+
+        return vertexPos;
+    }
+
+    void AppendVertex(Vector2F pos, Color color)
+    {
+        Vector2F vertexPos = PosToVertex(pos);
+
+        vertexBuffer[vertexBufferUsed++] = vertexPos.x;
+        vertexBuffer[vertexBufferUsed++] = vertexPos.y;
         vertexBuffer[vertexBufferUsed++] = 0.5f;
         vertexBuffer[vertexBufferUsed++] = color.r;
         vertexBuffer[vertexBufferUsed++] = color.g;
@@ -44,9 +56,9 @@ namespace Graphics
     {
         int startIndex = vertexBufferUsed / (3 + 4); // /7 = 1 vertex.
 
-        AppendVertex(pos0.x, pos0.y, color);
-        AppendVertex(pos1.x, pos1.y, color);
-        AppendVertex(pos2.x, pos2.y, color);
+        AppendVertex(pos0, color);
+        AppendVertex(pos1, color);
+        AppendVertex(pos2, color);
 
         indexBuffer[indexBufferUsed++] = startIndex + 0;
         indexBuffer[indexBufferUsed++] = startIndex + 1;
@@ -57,10 +69,10 @@ namespace Graphics
     {
         int startIndex = vertexBufferUsed / (3 + 4); // /7 = 1 vertex.
 
-        AppendVertex(pos0.x, pos0.y, color);
-        AppendVertex(pos1.x, pos1.y, color);
-        AppendVertex(pos2.x, pos2.y, color);
-        AppendVertex(pos3.x, pos3.y, color);
+        AppendVertex(pos0, color);
+        AppendVertex(pos1, color);
+        AppendVertex(pos2, color);
+        AppendVertex(pos3, color);
 
         indexBuffer[indexBufferUsed++] = startIndex + 0;
         indexBuffer[indexBufferUsed++] = startIndex + 1;
@@ -105,11 +117,11 @@ namespace Graphics
             float angle = i * angleStep;
             float x = center.x + radius * cos(angle);
             float y = center.y + radius * sin(angle);
-            AppendVertex(x, y, color);
+            AppendVertex(Vector2F(x, y), color);
         }
 
         // Connect the last vertex with the first vertex to close the circle
-        AppendVertex(center.x + radius, center.y, color);
+        AppendVertex(Vector2F(center.x + radius, center.y), color);
 
         for (int i = 0; i < numSegments; i++)
         {

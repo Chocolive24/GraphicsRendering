@@ -1,10 +1,17 @@
 #pragma once
 
+#include "Math.h"
+
 struct sapp_event;
 
 namespace Input
 {
-    extern float mouseX, mouseY;
+    extern bool keys[256];
 
-    void mouse_position_callback(const sapp_event* event);
+    extern Vector2F mousePos;
+
+    void KeyDownCallback(const sapp_event* event);
+    void KeyUpCallback(const sapp_event* event);
+
+    void MousePositionCallback(const sapp_event* event);
 };

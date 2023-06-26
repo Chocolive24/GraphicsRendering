@@ -12,15 +12,38 @@
 
 namespace Input
 {
-    float mouseX = 0.0f;
-    float mouseY = 0.0f;
-    
-    void mouse_position_callback(const sapp_event* event)
+    bool keys[256] = { false };
+
+    Vector2F mousePos = Vector2F::zero;
+
+    void KeyDownCallback(const sapp_event* event)
+    {
+        if (event->type == SAPP_EVENTTYPE_KEY_DOWN)
+        {
+            if (event->key_code < 256)
+            {
+                keys[event->key_code] = true;
+            }
+        }
+    }
+
+    void KeyUpCallback(const sapp_event* event)
+    {
+        if (event->type == SAPP_EVENTTYPE_KEY_UP)
+        {
+            if (event->key_code < 256)
+            {
+                keys[event->key_code] = false;
+            }
+        }
+    }
+
+    void MousePositionCallback(const sapp_event* event)
     {
         if (event->type == SAPP_EVENTTYPE_MOUSE_MOVE) 
         {
-            mouseX = event->mouse_x;
-            mouseY = event->mouse_y;
+            mousePos.x = event->mouse_x;
+            mousePos.y = event->mouse_y;
         }
     }
 }
@@ -117,7 +140,12 @@ sapp_desc sokol_main(int argc, char* argv[])
         .init_cb = init,
         .frame_cb = frame,
         .cleanup_cb = cleanup,
-        .event_cb = Input::mouse_position_callback,
+        .event_cb = [](const sapp_event* event) 
+        {
+            Input::MousePositionCallback(event);
+            Input::KeyDownCallback(event);
+            Input::KeyUpCallback(event);
+        },
         .width = 640,
         .height = 480,
         .window_title = "Triangle (sokol-app)",
