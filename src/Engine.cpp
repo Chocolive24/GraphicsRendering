@@ -4,7 +4,7 @@
 #include "sokol_app.h"
 #include "sokol_log.h"
 #include "sokol_glue.h"
-#include "triangle-sapp.glsl.h"
+#include "basic-sapp.glsl.h"
 
 #include "../include/Engine.h"
 #include "Graphics.cpp"
@@ -78,7 +78,6 @@ namespace Input
 
     bool KeyWasPressed(sapp_keycode key)
     {
-        printf("%i %i \n", !previousKeyStates[key], keyStates[key]);
         return !previousKeyStates[key] && keyStates[key];
     }
 
@@ -123,6 +122,27 @@ static void init(void)
         .label = "triangle-indices",
     });
 
+    
+    // create a checkerboard texture
+
+    // uint32_t pixels[4*4] = {
+    //     0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF, 0xFF000000,
+    //     0xFF000000, 0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF,
+    //     0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF, 0xFF000000,
+    //     0xFF000000, 0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF,
+    // };
+    
+    Bitmap tilemapImg = Graphics::LoadImg("assets/tilemap.png");
+
+    // NOTE: SLOT_tex is provided by shader code generation
+    state.bind.fs_images[SLOT_tex] = sg_make_image((sg_image_desc)
+    {
+        .width = 16,
+        .height = 16,
+        .data.subimage[0][0] =  sg_range{ tilemapImg.pixels, tilemapImg.DataSize() },
+        .label = "cube-texture"
+    });
+
     // create shader from code-generated sg_shader_desc
     sg_shader shd = sg_make_shader(triangle_shader_desc(sg_query_backend()));
 
@@ -131,13 +151,28 @@ static void init(void)
         .index_type = SG_INDEXTYPE_UINT32,
         .shader = shd,
         // if the vertex layout doesn't have gaps, don't need to provide strides and offsets
-        .layout = {
-            .attrs = {
+        .layout = 
+        {
+            .attrs = 
+            {
                 [ATTR_vs_position].format = SG_VERTEXFORMAT_FLOAT3,
-                [ATTR_vs_color0].format   = SG_VERTEXFORMAT_FLOAT4
+                [ATTR_vs_color0].format   = SG_VERTEXFORMAT_FLOAT4,
+                [ATTR_vs_uv0].format      = SG_VERTEXFORMAT_FLOAT2,
             }
         },
-        .label = "triangle-pipeline"
+        .label = "triangle-pipeline",
+
+        // Set up the alpha blending so that the output color of the fragment pixel is blended 
+        // into the framebuffer proportionnally to its alpha.
+        // This is the classic transparency blending.
+        .colors[0].blend = (sg_blend_state)
+        {
+            .enabled = true,
+            .src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA,
+            .dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+            .src_factor_alpha = SG_BLENDFACTOR_ONE,
+            .dst_factor_alpha = SG_BLENDFACTOR_ZERO,
+        },
     });
 
     // a pass action to clear framebuffer to black

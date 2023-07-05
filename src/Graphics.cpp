@@ -1,8 +1,9 @@
 #pragma once
 
-
-
 #include "../include/Graphics.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 float vertexBuffer[1000];
 int   vertexBufferUsed = 0;
@@ -10,12 +11,13 @@ int   vertexBufferUsed = 0;
 uint32_t indexBuffer[1000];
 int      indexBufferUsed = 0;
 
-const Color Color::red    = Color(1.f, 0.f, 0.f, 1.f);
-const Color Color::green  = Color(0.f, 1.f, 0.f, 1.f);
-const Color Color::blue   = Color(0.f, 0.f, 1.f, 1.f);
-const Color Color::purple = Color(1.f, 0.f, 1.f, 1.f);
-const Color Color::yellow = Color(1.f, 1.f, 0.f, 1.f);
-const Color Color::cyan   = Color(0.f, 1.f, 1.f, 1.f);
+const Color Color::red     = Color(1.f, 0.f, 0.f, 1.f);
+const Color Color::green   = Color(0.f, 1.f, 0.f, 1.f);
+const Color Color::blue    = Color(0.f, 0.f, 1.f, 1.f);
+const Color Color::purple  = Color(1.f, 0.f, 1.f, 1.f);
+const Color Color::yellow  = Color(1.f, 1.f, 0.f, 1.f);
+const Color Color::cyan    = Color(0.f, 1.f, 1.f, 1.f);
+const Color Color::white   = Color(1.f, 1.f, 1.f, 1.f);
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -37,7 +39,7 @@ namespace Graphics
         return vertexPos;
     }
 
-    void AppendVertex(Vector2F pos, Color color)
+    void AppendVertex(Vector2F pos, Color color, float u = 0, float v = 0)
     {
         Vector2F vertexPos = PosToVertex(pos);
 
@@ -48,11 +50,13 @@ namespace Graphics
         vertexBuffer[vertexBufferUsed++] = color.g;
         vertexBuffer[vertexBufferUsed++] = color.b;
         vertexBuffer[vertexBufferUsed++] = color.a;
+        vertexBuffer[vertexBufferUsed++] = u;
+        vertexBuffer[vertexBufferUsed++] = v;
     }
 
     void DrawTriangle(Vector2F pos0, Vector2F pos1, Vector2F pos2, Color color)
     {
-        int startIndex = vertexBufferUsed / (3 + 4); // /7 = 1 vertex.
+        int startIndex = vertexBufferUsed / (3 + 4 + 2); // /7 = 1 vertex.
 
         AppendVertex(pos0, color);
         AppendVertex(pos1, color);
@@ -65,12 +69,12 @@ namespace Graphics
 
     void DrawQuad(Vector2F pos0, Vector2F pos1, Vector2F pos2, Vector2F pos3, Color color)
     {
-        int startIndex = vertexBufferUsed / (3 + 4); // /7 = 1 vertex.
+        int startIndex = vertexBufferUsed / (3 + 4 + 2); // /7 = 1 vertex.
 
-        AppendVertex(pos0, color);
-        AppendVertex(pos1, color);
-        AppendVertex(pos2, color);
-        AppendVertex(pos3, color);
+        AppendVertex(pos0, color, 0, 0);
+        AppendVertex(pos1, color, 1, 0);
+        AppendVertex(pos2, color, 1, 1);
+        AppendVertex(pos3, color, 0, 1);
 
         indexBuffer[indexBufferUsed++] = startIndex + 0;
         indexBuffer[indexBufferUsed++] = startIndex + 1;
@@ -106,7 +110,7 @@ namespace Graphics
 
     void DrawCircle(Vector2F center, float radius, int numSegments, Color color)
     {
-        int startIndex = vertexBufferUsed / 7; // 7 = 3 (position) + 4 (color) attributes per vertex
+        int startIndex = vertexBufferUsed / 9; // 7 = 3 (position) + 4 (color) attributes per vertex
 
         const float angleStep = Calcul::TAU / numSegments;
 
@@ -127,5 +131,43 @@ namespace Graphics
             indexBuffer[indexBufferUsed++] = startIndex + i + 1;
             indexBuffer[indexBufferUsed++] = startIndex + numSegments;
         }
+    }
+
+    Bitmap LoadImg(const char* filePath)
+    {
+        Bitmap img = {};
+
+        int dummyChannels; // dummy (not used), only here to be called in stbi_load because we always want 4 channels so we hard code it later.
+
+        img.pixels = (uint32_t*) stbi_load(filePath, &img.pixelSizeX, &img.pixelSizeY, &dummyChannels, 4);
+        img.channels = 4;
+
+        if(img.pixels == nullptr) 
+        {
+            printf("Error in loading the image %s \n", filePath);
+            exit(1);
+        }
+
+        printf("Loaded image with a width of %dpx, a height of %dpx and %d channels\n", img.pixelSizeX, img.pixelSizeY, img.channels);
+
+        return img;
+    }
+
+    void DrawTile(Vector2F pos, float width, float height, Color color, float uMin, float uMax, float vMin, float vMax)
+    {
+        int startIndex = vertexBufferUsed / (3 + 4 + 2); // /7 = 1 vertex.
+
+        AppendVertex(pos, color, uMin, vMin);
+        AppendVertex(Vector2F(pos.x + width, pos.y),          color, uMax, vMin);
+        AppendVertex(Vector2F(pos.x + width, pos.y + height), color, uMax, vMax);
+        AppendVertex(Vector2F(pos.x, pos.y + height),         color, uMin, vMax);
+
+        indexBuffer[indexBufferUsed++] = startIndex + 0;
+        indexBuffer[indexBufferUsed++] = startIndex + 1;
+        indexBuffer[indexBufferUsed++] = startIndex + 2;
+
+        indexBuffer[indexBufferUsed++] = startIndex + 0;
+        indexBuffer[indexBufferUsed++] = startIndex + 2;
+        indexBuffer[indexBufferUsed++] = startIndex + 3;
     }
 }
