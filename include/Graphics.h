@@ -28,8 +28,6 @@ struct Color
     static const Color cyan;
 };
 
-
-
 namespace Graphics
 {
     void ClearDrawBuffer();

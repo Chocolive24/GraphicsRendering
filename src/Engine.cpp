@@ -12,9 +12,21 @@
 
 namespace Input
 {
-    bool keys[256] = { false };
+    // Variables 
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    bool keyStates[256] = { false };
+    bool previousKeyStates[256] = { false };
 
     Vector2F mousePos = Vector2F::zero;
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    // Callbacks 
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    // Keyboard 
+    // --------------------------------------------------------------------------------------
 
     void KeyDownCallback(const sapp_event* event)
     {
@@ -22,7 +34,7 @@ namespace Input
         {
             if (event->key_code < 256)
             {
-                keys[event->key_code] = true;
+                keyStates[event->key_code] = true;
             }
         }
     }
@@ -33,12 +45,17 @@ namespace Input
         {
             if (event->key_code < 256)
             {
-                keys[event->key_code] = false;
+                keyStates[event->key_code] = false;
             }
         }
     }
 
-    void MousePositionCallback(const sapp_event* event)
+    // --------------------------------------------------------------------------------------
+
+    // Mouse 
+    // --------------------------------------------------------------------------------------
+
+     void MouseMoveCallback(const sapp_event* event)
     {
         if (event->type == SAPP_EVENTTYPE_MOUSE_MOVE) 
         {
@@ -46,6 +63,31 @@ namespace Input
             mousePos.y = event->mouse_y;
         }
     }
+
+    // --------------------------------------------------------------------------------------
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    // Functions 
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    bool KeyBeingPressed(sapp_keycode key)
+    {
+        return keyStates[key];
+    }
+
+    bool KeyWasPressed(sapp_keycode key)
+    {
+        printf("%i %i \n", !previousKeyStates[key], keyStates[key]);
+        return !previousKeyStates[key] && keyStates[key];
+    }
+
+    bool KeyWasReleased(sapp_keycode key)
+    {
+        return previousKeyStates[key] && !keyStates[key];
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
 }
 
 void GameFrame();
@@ -57,8 +99,6 @@ static struct
     sg_bindings bind;
     sg_pass_action pass_action;
 } state;
-
-
 
 static void init(void) 
 {
@@ -115,10 +155,12 @@ void frame(void)
 
     Graphics::ClearDrawBuffer();
 
+    memcpy(Input::previousKeyStates, Input::keyStates, sizeof(Input::keyStates));
+
     GameFrame();
 
     sg_update_buffer(state.bind.vertex_buffers[0], (sg_range) { .ptr = vertexBuffer, .size = vertexBufferUsed * sizeof(*vertexBuffer) });
-    sg_update_buffer(state.bind.index_buffer, (sg_range) { .ptr = indexBuffer, .size = indexBufferUsed * sizeof(*indexBuffer) });
+    sg_update_buffer(state.bind.index_buffer,      (sg_range) { .ptr = indexBuffer,  .size = indexBufferUsed *  sizeof(*indexBuffer) });
 
     sg_draw(0, indexBufferUsed, 1);
     sg_end_pass();
@@ -142,7 +184,7 @@ sapp_desc sokol_main(int argc, char* argv[])
         .cleanup_cb = cleanup,
         .event_cb = [](const sapp_event* event) 
         {
-            Input::MousePositionCallback(event);
+            Input::MouseMoveCallback(event);
             Input::KeyDownCallback(event);
             Input::KeyUpCallback(event);
         },

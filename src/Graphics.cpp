@@ -1,8 +1,6 @@
 #pragma once
 
-#include <stdint.h> // for uint32_t
-#include <stdio.h> // for printf
-#include <stdlib.h> // for exit
+
 
 #include "../include/Graphics.h"
 

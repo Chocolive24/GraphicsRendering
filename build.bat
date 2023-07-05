@@ -4,5 +4,5 @@ clang++ src/Engine.cpp  src/Game.cpp ^
     -std=c++17 ^
     -Wall -Wextra -Wno-c99-designator -Wno-reorder-init-list ^
     -I libs/include ^
-    -I shaders/include
+    -I shaders/include 
 bin\game.exe
