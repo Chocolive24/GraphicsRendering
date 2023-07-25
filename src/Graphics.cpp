@@ -123,7 +123,7 @@ namespace Graphics
     {
         if (!currentDrawCommand.texture || texture->id != currentDrawCommand.texture->id)
         {
-            DrawCommand cmd = (DrawCommand){ .texture = texture, .indexStart = indexBufferUsed, .indexCount = indexBufferUsed + 6 };
+            DrawCommand cmd = (DrawCommand){ .texture = texture, .indexStart = indexBufferUsed, .indexCount = 6 };
             currentDrawCommand = cmd;
             drawCommandBuffer[drawCommandCount++] = cmd;
         }

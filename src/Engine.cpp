@@ -250,8 +250,9 @@ void frame(void)
 
     GameFrame();
     Graphics::DrawRect(Vector2F(sapp_width() / 2 - 8.f, sapp_height() / 2 - 60.f), 160.f, 120.f, Color::white, &state.penguinTexture);
-    Graphics::DrawRect(Vector2F(100.f,  100.f), 100.f, 100.f, Color::white, &state.penguinTexture);
+    Graphics::DrawRect(Vector2F(100.f,  100.f), 100.f, 100.f, Color::white, &state.tilemapTexture);
     Graphics::DrawRect(Vector2F(200.f,  200.f),  50.f,  30.f, Color::white, &state.penguinTexture);
+    Graphics::DrawRect(Vector2F(300.f,  300.f), 20.f, 120.f, Color::white, &state.tilemapTexture);
 
     sg_update_buffer(state.bind.vertex_buffers[0], (sg_range) { .ptr = vertexBuffer, .size = vertexBufferUsed * sizeof(*vertexBuffer) });
     sg_update_buffer(state.bind.index_buffer,      (sg_range) { .ptr = indexBuffer,  .size = indexBufferUsed *  sizeof(*indexBuffer) });
