@@ -11,6 +11,10 @@ int   vertexBufferUsed = 0;
 uint32_t indexBuffer[1000];
 int      indexBufferUsed = 0;
 
+DrawCommand drawCommandBuffer[10];
+int drawCommandCount = 0;
+DrawCommand currentDrawCommand = {};
+
 const Color Color::red     = Color(1.f, 0.f, 0.f, 1.f);
 const Color Color::green   = Color(0.f, 1.f, 0.f, 1.f);
 const Color Color::blue    = Color(0.f, 0.f, 1.f, 1.f);
@@ -18,11 +22,14 @@ const Color Color::purple  = Color(1.f, 0.f, 1.f, 1.f);
 const Color Color::yellow  = Color(1.f, 1.f, 0.f, 1.f);
 const Color Color::cyan    = Color(0.f, 1.f, 1.f, 1.f);
 const Color Color::white   = Color(1.f, 1.f, 1.f, 1.f);
+const Color Color::baseImg = Color::white;
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 namespace Graphics
 {
+    Vector2F translateVec = Vector2F(200.f, 200.f);
+
     void ClearDrawBuffer()
     {
         vertexBufferUsed = 0;
@@ -39,9 +46,36 @@ namespace Graphics
         return vertexPos;
     }
 
+    void Translate(Vector2F translate)
+    {
+        translateVec = translate;
+    }
+
+    Vector2F Transform(Vector2F vec2)
+    {
+        return vec2 += translateVec;
+    }
+
+    Vector2F Scale(Vector2F pos, Vector2F scaleVec2, Vector2F pivot)
+    {
+        Vector2F pivotTranslatedVec = pos - pivot;
+
+        pivotTranslatedVec *= scaleVec2;
+
+        pivotTranslatedVec += pivot;
+
+        return pivotTranslatedVec;
+    }
+
     void AppendVertex(Vector2F pos, Color color, float u = 0, float v = 0)
     {
-        Vector2F vertexPos = PosToVertex(pos);
+        Vector2F translatedVec2 = Transform(pos);
+
+        Vector2F scaledVec = Scale(pos, Vector2F(1.f, 1.f), Vector2F(4.f, 4.f));
+
+        //printf("%f %f\n", translatedVec2.x, translatedVec2.y);
+
+        Vector2F vertexPos = PosToVertex(scaledVec);
 
         vertexBuffer[vertexBufferUsed++] = vertexPos.x;
         vertexBuffer[vertexBufferUsed++] = vertexPos.y;
@@ -85,8 +119,20 @@ namespace Graphics
         indexBuffer[indexBufferUsed++] = startIndex + 3;
     }
 
-    void DrawRect(Vector2F pos, float width, float height, Color color)
+    void DrawRect(Vector2F pos, float width, float height, Color color, sg_image* texture)
     {
+        if (!currentDrawCommand.texture || texture->id != currentDrawCommand.texture->id)
+        {
+            DrawCommand cmd = (DrawCommand){ .texture = texture, .indexStart = indexBufferUsed, .indexCount = indexBufferUsed + 6 };
+            currentDrawCommand = cmd;
+            drawCommandBuffer[drawCommandCount++] = cmd;
+        }
+        else 
+        {
+            DrawCommand* lastCommand = &drawCommandBuffer[drawCommandCount - 1];
+            lastCommand->indexCount += 6;
+        }
+
         DrawQuad(pos, Vector2F(pos.x + width, pos.y), Vector2F(pos.x + width, pos.y + height), 
                  Vector2F(pos.x, pos.y + height), color);
     }

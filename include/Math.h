@@ -10,6 +10,11 @@ namespace Calcul
 
     // the ratio of the circumference to the radius of a circle, which is equal to 2π
     constexpr float TAU = 2.0f * M_PI;
+
+    inline float DegreesToRadians(float angle)
+    {
+        return angle * M_PI / 180;
+    }
 };
 
 template <class T>
@@ -62,6 +67,11 @@ struct Vector2
         return Vector2<T>(this->x * scale, this->y * scale);
     }
 
+    constexpr Vector2<T> operator*(Vector2<T> v) const
+    {
+        return Vector2<T>(this->x * v.x, this->y * v.y);
+    }
+
     constexpr Vector2<T> operator/(float scale) const
     {
         return Vector2<T>(this->x / scale, this->y / scale);
@@ -78,6 +88,13 @@ struct Vector2
     {
         this->x -= v.x;
         this->y -= v.y;
+        return *this;
+    }
+
+    constexpr Vector2<T>& operator*=(const Vector2<T>& v)
+    {
+        this->x *= v.x;
+        this->y *= v.y;
         return *this;
     }
 
