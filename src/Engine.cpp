@@ -254,6 +254,11 @@ void frame(void)
     Graphics::DrawRect(Vector2F(200.f,  200.f),  50.f,  30.f, Color::white, &state.penguinTexture);
     Graphics::DrawRect(Vector2F(300.f,  300.f), 20.f, 120.f, Color::white, &state.tilemapTexture);
 
+    
+    Graphics::DrawQuad({500.f, 400.f}, {600.f, 400.f}, {600.f, 450.f}, {500.f, 450.f}, Color::green);
+    Graphics::DrawQuad({500.f, 400.f}, {600.f, 400.f}, {600.f, 450.f}, {500.f, 450.f}, Color::red);
+    Graphics::DrawQuad({400.f, 300.f}, {500.f, 300.f}, {500.f, 350.f}, {400.f, 350.f}, Color::red);
+
     sg_update_buffer(state.bind.vertex_buffers[0], (sg_range) { .ptr = vertexBuffer, .size = vertexBufferUsed * sizeof(*vertexBuffer) });
     sg_update_buffer(state.bind.index_buffer,      (sg_range) { .ptr = indexBuffer,  .size = indexBufferUsed *  sizeof(*indexBuffer) });
 
@@ -273,11 +278,13 @@ void frame(void)
         // arg3: the number of instances to draw (in your case, 1 for each draw command)
         sg_draw(cmd->indexStart, cmd->indexCount, 1);
     }
+    
+    state.bind.fs_images[SLOT_tex] = state.penguinTexture;
+    sg_apply_bindings(&state.bind);
 
-    // state.bind.fs_images[SLOT_tex] = state.penguinTexture;
-    // sg_apply_bindings(&state.bind);
-
-    // sg_draw(6, 12, 1);
+    //sg_draw(24, 12, 1); // draw the 2 penguins manually to test.
+    sg_draw(36,  6, 1); // test to draw the last indices before some previous ones.
+    sg_draw(27,  6, 1); // draw custom penguin.
 
     sg_end_pass();
     sg_commit();
